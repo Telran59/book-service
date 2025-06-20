@@ -2,17 +2,39 @@ import Book from "./book.model.js";
 import Publisher from "./publisher.model.js";
 import Author from "./author.model.js";
 import {sequelize} from "../config/database.js";
+import {DataTypes} from "sequelize";
+
+// Define the junction table
+const BooksAuthors = sequelize.define('BooksAuthors', {
+    isbn: {
+        type: DataTypes.STRING,
+        references: {
+            model: Book,
+            key: 'isbn'
+        }
+    },
+    authorName: {
+        type: DataTypes.STRING,
+        references: {
+            model: Author,
+            key: 'name'
+        }
+    }
+}, {
+    tableName: 'books_authors',
+    timestamps: false,
+})
 
 // Book and Author: Many-To-Many relationship
 Book.belongsToMany(Author, {
-    through: 'BookAuthor',
+    through: BooksAuthors,
     foreignKey: 'isbn',
     otherKey: 'authorName',
     as: 'authors'
 })
 
 Author.belongsToMany(Book, {
-    through: 'BookAuthor',
+    through: BooksAuthors,
     foreignKey: 'authorName',
     otherKey: 'isbn',
     as: 'books'
