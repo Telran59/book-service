@@ -17,7 +17,6 @@ export const addBook = async (req, res) => {
         if (!publisherRecord) {
             publisherRecord = await Publisher.create({publisherName: publisher}, {transaction: t});
         }
-        console.log(publisherRecord)
         // Process authors
         const authorRecords = [];
         for (const author of authors) {
@@ -27,12 +26,14 @@ export const addBook = async (req, res) => {
             }
             authorRecords.push(authorRecord);
         }
-        console.log(authorRecords)
-        // Create the book
-        const book =
-            await Book.create({isbn, title, publisher: publisherRecord, authors: authorRecords}, {transaction: t});
+        // Create the book without association
+        const book = await Book.create({isbn, title, publisher}, {transaction: t});
+
+        // Associate authors
+        await book.setAuthors(authorRecords, {transaction: t});
+
         await t.commit();
-        return res.json(book);
+        return res.sendStatus(201);
     } catch (e) {
         await t.rollback();
         console.error('Error adding book:', e);
