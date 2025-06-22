@@ -1,4 +1,3 @@
-import {sequelize} from "../config/database.js";
 import {Author, Book} from "../model/index.js";
 
 export const findPublishersByAuthor = async (req, res) => {
@@ -8,18 +7,16 @@ export const findPublishersByAuthor = async (req, res) => {
         if (!authorRecord) {
             return res.status(404).json({error: "Author not found"});
         }
-        const books = await Book.findAll({
+        const publishers = await Book.aggregate('publisher', 'DISTINCT', {
+            plain: false,
             include: {
-                model: Author, as: 'authors',
+                model: Author,
+                as: 'authors',
                 where: {name: author},
-                through: {attributes: []}
-            },
-            attributes: [[sequelize.col('publisher'), 'publisher']],
-            group: ['publisher'],
-            raw: true,
+                through: { attributes: [] }
+            }
         });
-        const publishers = books.map(book => book.publisher);
-        return res.json(publishers);
+        return res.json(publishers.map(p => p.DISTINCT));
     } catch (e) {
         console.error('Error finding publishers by author', e);
         return res.status(500).json({
