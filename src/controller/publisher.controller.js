@@ -1,4 +1,4 @@
-import {Author, Book} from "../model/index.js";
+import {Author} from "../model/index.js";
 import {sequelize} from "../config/database.js";
 
 export const findPublishersByAuthor = async (req, res) => {
