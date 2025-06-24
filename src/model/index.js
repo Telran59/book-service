@@ -37,7 +37,8 @@ Author.belongsToMany(Book, {
     through: BooksAuthors,
     foreignKey: 'authorName',
     otherKey: 'isbn',
-    as: 'books'
+    as: 'books',
+    // onDelete: 'RESTRICT'
 })
 
 
